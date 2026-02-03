@@ -1,9 +1,7 @@
 USE online_store;
 GO
 
-/* =====================================================
-   DROP FUNCTIONS (если существуют)
-===================================================== */
+-- FUNCTIONS
 
 IF OBJECT_ID('dbo.fn_TotalSpent', 'FN') IS NOT NULL
     DROP FUNCTION dbo.fn_TotalSpent;
@@ -18,9 +16,7 @@ IF OBJECT_ID('dbo.fn_OrderTotal', 'FN') IS NOT NULL
 GO
 
 
-/* =====================================================
-   DROP PROCEDURES (если существуют)
-===================================================== */
+-- DROP PROCEDURES
 
 IF OBJECT_ID('dbo.sp_AddToCart', 'P') IS NOT NULL
     DROP PROCEDURE dbo.sp_AddToCart;
@@ -43,11 +39,9 @@ IF OBJECT_ID('dbo.sp_ClearCart', 'P') IS NOT NULL
 GO
 
 
-/* =====================================================
-   FUNCTIONS
-===================================================== */
+   -- FUNCTIONS
 
--- 1️⃣ Общая сумма заказов клиента
+-- Общая сумма заказов клиента
 CREATE FUNCTION dbo.fn_TotalSpent (@CustomerID INT)
 RETURNS DECIMAL(10,2)
 AS
@@ -64,7 +58,7 @@ END;
 GO
 
 
--- 2️⃣ Остаток товара на складе
+-- Остаток товара на складе
 CREATE FUNCTION dbo.fn_ProductStock (@ProductID INT)
 RETURNS INT
 AS
@@ -80,7 +74,7 @@ END;
 GO
 
 
--- 3️⃣ Сумма конкретного заказа
+-- Сумма конкретного заказа
 CREATE FUNCTION dbo.fn_OrderTotal (@OrderID INT)
 RETURNS DECIMAL(10,2)
 AS
@@ -96,11 +90,9 @@ END;
 GO
 
 
-/* =====================================================
-   PROCEDURES
-===================================================== */
+-- PROCEDURES
 
--- 1️⃣ Добавить товар в корзину
+-- Добавить товар в корзину
 CREATE PROCEDURE dbo.sp_AddToCart
     @CartID INT,
     @ProductID INT,
@@ -113,7 +105,7 @@ END;
 GO
 
 
--- 2️⃣ Создать заказ (исправлен ambiguous column)
+--  Создать заказ
 CREATE PROCEDURE dbo.sp_CreateOrder
     @CustomerID INT
 AS
@@ -144,7 +136,7 @@ END;
 GO
 
 
--- 3️⃣ Обновить цену товара
+-- Обновить цену товара
 CREATE PROCEDURE dbo.sp_UpdateProductPrice
     @ProductID INT,
     @NewPrice DECIMAL(10,2)
@@ -157,7 +149,7 @@ END;
 GO
 
 
--- 4️⃣ Удалить товар из корзины
+-- Удалить товар из корзины
 CREATE PROCEDURE dbo.sp_RemoveFromCart
     @CartID INT,
     @ProductID INT
@@ -169,8 +161,7 @@ BEGIN
 END;
 GO
 
-
--- 5️⃣ Очистить корзину клиента
+-- Очистить корзину клиента
 CREATE PROCEDURE dbo.sp_ClearCart
     @CustomerID INT
 AS

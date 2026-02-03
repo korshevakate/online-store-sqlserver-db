@@ -1,9 +1,8 @@
 USE online_store;
 GO
 
-/* =====================================================
-   View 1: Информация о заказах клиентов
-===================================================== */
+-- View 1: Информация о заказах клиентов
+
 CREATE OR ALTER VIEW vw_CustomerOrders
 AS
 SELECT
@@ -18,9 +17,8 @@ FROM Orders o
 JOIN Customers c ON o.customer_id = c.customer_id;
 GO
 
-/* =====================================================
-   View 2: Детали заказов (товары + сумма)
-===================================================== */
+--   View 2: Детали заказов (товары + сумма)
+
 CREATE OR ALTER VIEW vw_OrderDetails
 AS
 SELECT
@@ -35,9 +33,8 @@ JOIN Orders o ON oi.order_id = o.order_id
 JOIN Products p ON oi.product_id = p.product_id;
 GO
 
-/* =====================================================
-   View 3: Остатки товаров по категориям
-===================================================== */
+--   View 3: Остатки товаров по категориям
+
 CREATE OR ALTER VIEW vw_ProductStock
 AS
 SELECT

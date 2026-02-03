@@ -1,10 +1,8 @@
 USE online_store;
 GO
 
-/* =====================================================
-   TRIGGER 1
-   Проверка остатка товара перед добавлением в заказ
-===================================================== */
+-- TRIGGER 1 Проверка остатка товара перед добавлением в заказ
+
 CREATE OR ALTER TRIGGER trg_CheckStock_BeforeOrderItemInsert
 ON OrderItems
 INSTEAD OF INSERT
@@ -37,10 +35,8 @@ END;
 GO
 
 
-/* =====================================================
-   TRIGGER 2
-   Уменьшение остатка товара после добавления в заказ
-===================================================== */
+--   TRIGGER 2   Уменьшение остатка товара после добавления в заказ
+
 CREATE OR ALTER TRIGGER trg_DecreaseStock_OnOrderItemInsert
 ON OrderItems
 AFTER INSERT
