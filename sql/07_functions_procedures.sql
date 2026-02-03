@@ -2,37 +2,105 @@ USE online_store;
 GO
 
 /* =====================================================
-   FUNCTION: fn_TotalSpent
-   Назначение: вернуть общую сумму покупок клиента
-   ===================================================== */
+   DROP FUNCTIONS (если существуют)
+===================================================== */
 
-DROP FUNCTION IF EXISTS dbo.fn_TotalSpent;
+IF OBJECT_ID('dbo.fn_TotalSpent', 'FN') IS NOT NULL
+    DROP FUNCTION dbo.fn_TotalSpent;
 GO
 
+IF OBJECT_ID('dbo.fn_ProductStock', 'FN') IS NOT NULL
+    DROP FUNCTION dbo.fn_ProductStock;
+GO
+
+IF OBJECT_ID('dbo.fn_OrderTotal', 'FN') IS NOT NULL
+    DROP FUNCTION dbo.fn_OrderTotal;
+GO
+
+
+/* =====================================================
+   DROP PROCEDURES (если существуют)
+===================================================== */
+
+IF OBJECT_ID('dbo.sp_AddToCart', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_AddToCart;
+GO
+
+IF OBJECT_ID('dbo.sp_CreateOrder', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_CreateOrder;
+GO
+
+IF OBJECT_ID('dbo.sp_UpdateProductPrice', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_UpdateProductPrice;
+GO
+
+IF OBJECT_ID('dbo.sp_RemoveFromCart', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_RemoveFromCart;
+GO
+
+IF OBJECT_ID('dbo.sp_ClearCart', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_ClearCart;
+GO
+
+
+/* =====================================================
+   FUNCTIONS
+===================================================== */
+
+-- 1️⃣ Общая сумма заказов клиента
 CREATE FUNCTION dbo.fn_TotalSpent (@CustomerID INT)
 RETURNS DECIMAL(10,2)
 AS
 BEGIN
-    DECLARE @total DECIMAL(10,2);
+    DECLARE @Total DECIMAL(10,2);
 
-    SELECT @total = SUM(oi.quantity * oi.price)
+    SELECT @Total = ISNULL(SUM(oi.quantity * oi.price), 0)
     FROM Orders o
-    JOIN OrderItems oi ON oi.order_id = o.order_id
+    JOIN OrderItems oi ON o.order_id = oi.order_id
     WHERE o.customer_id = @CustomerID;
 
-    RETURN ISNULL(@total, 0);
+    RETURN @Total;
+END;
+GO
+
+
+-- 2️⃣ Остаток товара на складе
+CREATE FUNCTION dbo.fn_ProductStock (@ProductID INT)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @Stock INT;
+
+    SELECT @Stock = stock_quantity
+    FROM Products
+    WHERE product_id = @ProductID;
+
+    RETURN @Stock;
+END;
+GO
+
+
+-- 3️⃣ Сумма конкретного заказа
+CREATE FUNCTION dbo.fn_OrderTotal (@OrderID INT)
+RETURNS DECIMAL(10,2)
+AS
+BEGIN
+    DECLARE @Total DECIMAL(10,2);
+
+    SELECT @Total = SUM(quantity * price)
+    FROM OrderItems
+    WHERE order_id = @OrderID;
+
+    RETURN ISNULL(@Total, 0);
 END;
 GO
 
 
 /* =====================================================
-   PROCEDURE: sp_AddToCart
-   Назначение: добавить товар в корзину
-   ===================================================== */
+   PROCEDURES
+===================================================== */
 
-DROP PROCEDURE IF EXISTS dbo.sp_AddToCart;
-GO
-
+-- 1️⃣ Добавить товар в корзину
 CREATE PROCEDURE dbo.sp_AddToCart
     @CartID INT,
     @ProductID INT,
@@ -45,45 +113,71 @@ END;
 GO
 
 
-/* =====================================================
-   PROCEDURE: sp_CreateOrder
-   Назначение: создать заказ из корзины клиента
-   ===================================================== */
-
-DROP PROCEDURE IF EXISTS dbo.sp_CreateOrder;
-GO
-
+-- 2️⃣ Создать заказ (исправлен ambiguous column)
 CREATE PROCEDURE dbo.sp_CreateOrder
     @CustomerID INT
 AS
 BEGIN
     DECLARE @OrderID INT;
-    DECLARE @CartID INT;
 
-    -- Получаем корзину клиента
-    SELECT @CartID = cart_id
-    FROM Carts
-    WHERE customer_id = @CustomerID;
-
-    -- Создаём заказ
-    INSERT INTO Orders (customer_id, status)
-    VALUES (@CustomerID, 'Pending');
+    INSERT INTO Orders (customer_id, order_date, status)
+    VALUES (@CustomerID, GETDATE(), 'Created');
 
     SET @OrderID = SCOPE_IDENTITY();
 
-    -- Перенос товаров из корзины в заказ
     INSERT INTO OrderItems (order_id, product_id, quantity, price)
-    SELECT
+    SELECT 
         @OrderID,
         ci.product_id,
         ci.quantity,
         p.price
     FROM CartItems ci
-    JOIN Products p ON p.product_id = ci.product_id
-    WHERE ci.cart_id = @CartID;
+    JOIN Carts c ON ci.cart_id = c.cart_id
+    JOIN Products p ON ci.product_id = p.product_id
+    WHERE c.customer_id = @CustomerID;
 
-    -- Очищаем корзину
+    DELETE ci
+    FROM CartItems ci
+    JOIN Carts c ON ci.cart_id = c.cart_id
+    WHERE c.customer_id = @CustomerID;
+END;
+GO
+
+
+-- 3️⃣ Обновить цену товара
+CREATE PROCEDURE dbo.sp_UpdateProductPrice
+    @ProductID INT,
+    @NewPrice DECIMAL(10,2)
+AS
+BEGIN
+    UPDATE Products
+    SET price = @NewPrice
+    WHERE product_id = @ProductID;
+END;
+GO
+
+
+-- 4️⃣ Удалить товар из корзины
+CREATE PROCEDURE dbo.sp_RemoveFromCart
+    @CartID INT,
+    @ProductID INT
+AS
+BEGIN
     DELETE FROM CartItems
-    WHERE cart_id = @CartID;
+    WHERE cart_id = @CartID
+      AND product_id = @ProductID;
+END;
+GO
+
+
+-- 5️⃣ Очистить корзину клиента
+CREATE PROCEDURE dbo.sp_ClearCart
+    @CustomerID INT
+AS
+BEGIN
+    DELETE ci
+    FROM CartItems ci
+    JOIN Carts c ON ci.cart_id = c.cart_id
+    WHERE c.customer_id = @CustomerID;
 END;
 GO
