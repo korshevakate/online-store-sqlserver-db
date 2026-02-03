@@ -1,10 +1,6 @@
 USE online_store;
 GO
 
-/*
-CTE: Общая сумма покупок по каждому клиенту
-Используется для аналитики продаж
-*/
 
 WITH CustomerSales AS (
     SELECT
