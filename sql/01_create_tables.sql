@@ -148,7 +148,3 @@ CREATE TABLE Shipments (
         REFERENCES Orders(order_id)
 );
 GO
-
-
-
-
