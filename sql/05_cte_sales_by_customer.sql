@@ -1,10 +1,6 @@
 USE online_store;
 GO
 
-/*
-CTE: Îáùàÿ ñóììà ïîêóïîê ïî êàæäîìó êëèåíòó
-Èñïîëüçóåòñÿ äëÿ àíàëèòèêè ïðîäàæ
-*/
 
 WITH CustomerSales AS (
     SELECT
