@@ -1,6 +1,3 @@
-USE online_store;
-GO
-
 -- Добавляем категории
 INSERT INTO Categories (category_name) VALUES
 ('Electronics'),

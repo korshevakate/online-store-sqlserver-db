@@ -1,6 +1,3 @@
-USE online_store;
-GO
-
 -- FUNCTIONS
 
 IF OBJECT_ID('dbo.fn_TotalSpent', 'FN') IS NOT NULL

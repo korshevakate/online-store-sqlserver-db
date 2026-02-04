@@ -1,6 +1,3 @@
-USE online_store;
-GO
-
 CREATE INDEX IX_Products_Category
 ON Products(category_id);
 

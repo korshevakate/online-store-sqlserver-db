@@ -1,6 +1,3 @@
-USE online_store;
-GO
-
 ALTER TABLE OrderItems
 ADD CONSTRAINT CHK_OrderItems_Quantity
 CHECK (quantity > 0);

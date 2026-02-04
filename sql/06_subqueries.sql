@@ -1,6 +1,3 @@
-USE online_store;
-GO
-
 SELECT 
     c.first_name,
     c.last_name,

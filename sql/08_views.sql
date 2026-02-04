@@ -1,6 +1,3 @@
-USE online_store;
-GO
-
 -- View 1: Информация о заказах клиентов
 
 CREATE OR ALTER VIEW vw_CustomerOrders

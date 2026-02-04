@@ -1,6 +1,3 @@
-USE online_store;
-GO
-
 -- TRIGGER 1 Проверка остатка товара перед добавлением в заказ
 
 CREATE OR ALTER TRIGGER trg_CheckStock_BeforeOrderItemInsert

@@ -1,7 +1,4 @@
-USE online_store;
-GO
-
-;WITH CustomerSales AS (
+WITH CustomerSales AS (
     SELECT
         c.customer_id,
         c.first_name,

@@ -1,6 +1,3 @@
-USE online_store;
-GO
-
 -- Customers
 CREATE TABLE Customers (
     customer_id INT IDENTITY PRIMARY KEY,
